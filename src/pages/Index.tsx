@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
 import { 
   User, 
   Briefcase, 
@@ -67,6 +68,7 @@ interface Property {
 }
 
 const Index = () => {
+  const { toast } = useToast();
   const [character, setCharacter] = useState<Character>({
     name: "Alex Rodriguez",
     level: 12,
@@ -126,6 +128,93 @@ const Index = () => {
       available: false
     }
   ];
+
+  // Auto salary payment every 30 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const currentJob = jobs.find(j => j.title === character.job);
+      if (currentJob) {
+        const hourlyPay = Math.floor(currentJob.salary / 160); // Assuming 160 work hours per month
+        setCharacter(prev => ({ 
+          ...prev, 
+          money: prev.money + hourlyPay,
+          energy: Math.max(0, prev.energy - 2),
+          hunger: Math.min(100, prev.hunger + 1),
+          thirst: Math.min(100, prev.thirst + 1)
+        }));
+        toast({
+          title: "Salary Received!",
+          description: `+$${hourlyPay} from ${character.job}`,
+        });
+      }
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, [character.job, toast, jobs]);
+
+  // City functions
+  const visitHospital = () => {
+    const cost = 500;
+    if (character.money >= cost) {
+      setCharacter(prev => ({ 
+        ...prev, 
+        money: prev.money - cost,
+        health: 100 
+      }));
+      toast({
+        title: "Health Restored!",
+        description: `Paid $${cost} for medical treatment`,
+      });
+    } else {
+      toast({
+        title: "Insufficient Funds",
+        description: "You need $500 for medical treatment",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const visitRestaurant = () => {
+    const cost = 50;
+    if (character.money >= cost) {
+      setCharacter(prev => ({ 
+        ...prev, 
+        money: prev.money - cost,
+        hunger: Math.max(0, prev.hunger - 40),
+        thirst: Math.max(0, prev.thirst - 30)
+      }));
+      toast({
+        title: "Meal Enjoyed!",
+        description: `Paid $${cost} for a delicious meal`,
+      });
+    } else {
+      toast({
+        title: "Insufficient Funds",
+        description: "You need $50 for a meal",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const visitCityHall = () => {
+    const taxAmount = Math.floor(character.money * 0.05);
+    if (character.money >= taxAmount) {
+      setCharacter(prev => ({ 
+        ...prev, 
+        money: prev.money - taxAmount,
+        reputation: Math.min(100, prev.reputation + 5)
+      }));
+      toast({
+        title: "Taxes Paid!",
+        description: `Paid $${taxAmount} in taxes. Reputation increased!`,
+      });
+    } else {
+      toast({
+        title: "No Taxes Due",
+        description: "You don't have enough money to owe taxes",
+      });
+    }
+  };
 
   const vehicles: Vehicle[] = [
     {
@@ -260,38 +349,38 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-accent/10">
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-accent/10 animate-fade-in">
       <div className="container mx-auto p-6">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-2">
+        <div className="mb-8 text-center">
+          <h1 className="text-6xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent mb-4 animate-pulse-glow">
             Dalwa RP
           </h1>
-          <p className="text-muted-foreground">Live your virtual life, make choices, build your empire</p>
+          <p className="text-lg text-muted-foreground animate-fade-in">Live your virtual life, make choices, build your empire</p>
         </div>
 
         <Tabs defaultValue="character" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6">
-            <TabsTrigger value="character" className="flex items-center gap-2">
+          <TabsList className="grid w-full grid-cols-6 bg-card/80 backdrop-blur-sm shadow-lg border animate-scale-in">
+            <TabsTrigger value="character" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all duration-200 hover:scale-105">
               <User className="h-4 w-4" />
               Character
             </TabsTrigger>
-            <TabsTrigger value="jobs" className="flex items-center gap-2">
+            <TabsTrigger value="jobs" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all duration-200 hover:scale-105">
               <Briefcase className="h-4 w-4" />
               Jobs
             </TabsTrigger>
-            <TabsTrigger value="vehicles" className="flex items-center gap-2">
+            <TabsTrigger value="vehicles" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all duration-200 hover:scale-105">
               <Car className="h-4 w-4" />
               Vehicles
             </TabsTrigger>
-            <TabsTrigger value="properties" className="flex items-center gap-2">
+            <TabsTrigger value="properties" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all duration-200 hover:scale-105">
               <Home className="h-4 w-4" />
               Properties
             </TabsTrigger>
-            <TabsTrigger value="inventory" className="flex items-center gap-2">
+            <TabsTrigger value="inventory" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all duration-200 hover:scale-105">
               <Package className="h-4 w-4" />
               Inventory
             </TabsTrigger>
-            <TabsTrigger value="city" className="flex items-center gap-2">
+            <TabsTrigger value="city" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all duration-200 hover:scale-105">
               <MapPin className="h-4 w-4" />
               City
             </TabsTrigger>
@@ -552,43 +641,89 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="city" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <Card>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <Card className="hover:shadow-lg transition-all duration-300 hover:scale-105 animate-fade-in border-2 hover:border-primary/20">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+                  <CardTitle className="flex items-center gap-2 text-accent">
                     <Building2 className="h-5 w-5" />
                     City Hall
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">Register businesses, pay taxes, and handle legal matters.</p>
-                  <Button variant="outline" className="w-full">Visit</Button>
+                  <p className="text-sm text-muted-foreground mb-4">Pay taxes and increase your reputation with the city.</p>
+                  <div className="mb-4">
+                    <p className="text-sm font-medium">Tax Due: ${Math.floor(character.money * 0.05)}</p>
+                    <p className="text-xs text-muted-foreground">Paying taxes increases reputation</p>
+                  </div>
+                  <Button 
+                    onClick={visitCityHall}
+                    className="w-full bg-gradient-to-r from-accent to-accent/80 hover:from-accent/90 hover:to-accent transition-all duration-200"
+                  >
+                    Pay Taxes
+                  </Button>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="hover:shadow-lg transition-all duration-300 hover:scale-105 animate-fade-in border-2 hover:border-destructive/20">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+                  <CardTitle className="flex items-center gap-2 text-destructive">
                     <Stethoscope className="h-5 w-5" />
                     Hospital
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">Restore health and get medical treatment.</p>
-                  <Button variant="outline" className="w-full">Visit</Button>
+                  <p className="text-sm text-muted-foreground mb-4">Restore your health to 100%. Emergency treatment available.</p>
+                  <div className="mb-4">
+                    <div className="flex justify-between mb-2">
+                      <span className="text-sm font-medium">Current Health</span>
+                      <span className="text-sm text-destructive">{character.health}%</span>
+                    </div>
+                    <Progress value={character.health} className="h-2" />
+                    <p className="text-sm font-semibold mt-2 text-destructive">Cost: $500</p>
+                  </div>
+                  <Button 
+                    onClick={visitHospital}
+                    disabled={character.money < 500 || character.health === 100}
+                    className="w-full bg-gradient-to-r from-destructive to-destructive/80 hover:from-destructive/90 hover:to-destructive transition-all duration-200"
+                  >
+                    {character.health === 100 ? "Full Health" : character.money >= 500 ? "Get Treatment" : "Need $500"}
+                  </Button>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="hover:shadow-lg transition-all duration-300 hover:scale-105 animate-fade-in border-2 hover:border-warning/20">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+                  <CardTitle className="flex items-center gap-2 text-warning">
                     <Utensils className="h-5 w-5" />
                     Restaurant
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">Satisfy hunger and socialize with other players.</p>
-                  <Button variant="outline" className="w-full">Visit</Button>
+                  <p className="text-sm text-muted-foreground mb-4">Satisfy your hunger and thirst with a delicious meal.</p>
+                  <div className="mb-4 space-y-2">
+                    <div>
+                      <div className="flex justify-between mb-1">
+                        <span className="text-sm">Hunger</span>
+                        <span className="text-sm text-warning">{character.hunger}%</span>
+                      </div>
+                      <Progress value={100 - character.hunger} className="h-2" />
+                    </div>
+                    <div>
+                      <div className="flex justify-between mb-1">
+                        <span className="text-sm">Thirst</span>
+                        <span className="text-sm text-blue-500">{character.thirst}%</span>
+                      </div>
+                      <Progress value={100 - character.thirst} className="h-2" />
+                    </div>
+                    <p className="text-sm font-semibold text-warning">Cost: $50</p>
+                  </div>
+                  <Button 
+                    onClick={visitRestaurant}
+                    disabled={character.money < 50}
+                    className="w-full bg-gradient-to-r from-warning to-warning/80 hover:from-warning/90 hover:to-warning text-warning-foreground transition-all duration-200"
+                  >
+                    {character.money >= 50 ? "Order Meal" : "Need $50"}
+                  </Button>
                 </CardContent>
               </Card>
             </div>
