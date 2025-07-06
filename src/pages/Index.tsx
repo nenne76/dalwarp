@@ -163,6 +163,42 @@ const Index = () => {
       type: "Truck",
       speed: 70,
       handling: 60
+    },
+    {
+      id: "bmw_m3",
+      name: "M3 Competition",
+      brand: "BMW",
+      price: 72000,
+      type: "Sports",
+      speed: 92,
+      handling: 88
+    },
+    {
+      id: "bmw_x5",
+      name: "X5 M50i",
+      brand: "BMW",
+      price: 68000,
+      type: "SUV",
+      speed: 78,
+      handling: 82
+    },
+    {
+      id: "bmw_i8",
+      name: "i8 Roadster",
+      brand: "BMW",
+      price: 165000,
+      type: "Hybrid Sports",
+      speed: 88,
+      handling: 95
+    },
+    {
+      id: "bmw_320i",
+      name: "320i",
+      brand: "BMW",
+      price: 42000,
+      type: "Sedan",
+      speed: 75,
+      handling: 85
     }
   ];
 
@@ -228,7 +264,7 @@ const Index = () => {
       <div className="container mx-auto p-6">
         <div className="mb-8">
           <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-2">
-            Grand Life RP
+            Dalwa RP
           </h1>
           <p className="text-muted-foreground">Live your virtual life, make choices, build your empire</p>
         </div>
